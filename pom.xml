@@ -12,7 +12,8 @@
     <artifactId>standardize-azure-service-bus</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>standardize-azure-service-bus</name>
-    <description>Migrate From Azure Service Bus to standard AMQP and then allow to switch to another AMQP 1.0 provider
+    <description>
+        Migrate From Azure Service Bus to standard AMQP and then allow to switch to another AMQP 1.0 provider
     </description>
 
     <properties>
