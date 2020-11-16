@@ -6,7 +6,7 @@ A legacy application uses Azure Sdk for AMQP queue message receiveing and sendin
 We want to move away from Microsoft SDK to a more standard provider (AMQP 1.0 compatible).
 E.G. to move to another cloud provider or on premise.
 
-## Behaviour
+## Behaviou
 
 A simple web application with an endpoint to send a message to a queue "sample-queue" 
 - POST /send (message is the body)
