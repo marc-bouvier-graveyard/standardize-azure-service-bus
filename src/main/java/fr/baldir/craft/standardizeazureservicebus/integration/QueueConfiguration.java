@@ -1,9 +1,7 @@
-package fr.baldir.craft.standardizeazureservicebus.sub;
+package fr.baldir.craft.standardizeazureservicebus.integration;
 
 import com.microsoft.azure.servicebus.*;
 import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
-import com.microsoft.azure.servicebus.primitives.ServiceBusException;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,38 +11,43 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
 
 @Configuration
-public class QueueSubscriptionConfiguration {
+public class QueueConfiguration {
 
 
     private final String azureServiceBusConnectionString;
 
-    public QueueSubscriptionConfiguration(
-            @Value("${spring.jms.servicebus.connection-string}")
+    public QueueConfiguration(
+            @Value("${baldir.craft.azure.servicebus.connection-string}")
                     String azureServiceBusConnectionString) {
         this.azureServiceBusConnectionString = azureServiceBusConnectionString;
     }
 
     @Bean
-    public IQueueClient queueClient() throws Exception {
+    public IQueueClient sampleQueueClient(@Value("${baldir.craft.queue.sample.name}")
+                                                  String queueName) throws Exception {
         // Connect to service bus
-        QueueClient queueClient = new QueueClient(
-                new ConnectionStringBuilder(azureServiceBusConnectionString, "sub-queue"),
+        QueueClient sampleQueueClient = new QueueClient(
+                new ConnectionStringBuilder(azureServiceBusConnectionString, queueName),
                 ReceiveMode.RECEIVEANDDELETE);
-        registerReceiver(queueClient);
 
-        return queueClient;
+        initReceiver(sampleQueueClient);
+
+        return sampleQueueClient;
     }
 
-    void registerReceiver(QueueClient queueClient) throws Exception {
+
+    void initReceiver(QueueClient queueClient) throws Exception {
 
         queueClient.registerMessageHandler(
-                messageHandler(),
+                systemOutSampleMessageHandler(),
                 new MessageHandlerOptions(1, true, Duration.ofMinutes(1)),
-                ForkJoinPool.commonPool());
+                ForkJoinPool.commonPool()); // Make explicit use of the default ServiceExecutor instead of using a deprecated methos
     }
 
-    @NotNull
-    private IMessageHandler messageHandler() {
+    /**
+     * @return Handler that prints the received message received from the queue.
+     */
+    private IMessageHandler systemOutSampleMessageHandler() {
         return new IMessageHandler() {
             public CompletableFuture<Void> onMessageAsync(IMessage message) {
 
